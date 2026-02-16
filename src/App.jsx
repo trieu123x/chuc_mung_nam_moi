@@ -43,13 +43,27 @@ const banks = [
 
   const audioRef = useRef(null);
   useEffect(() => {
-  const startMusic = () => {
-    audioRef.current.play();
-    window.removeEventListener("click", startMusic);
+  const startMusic = async () => {
+    try {
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      audio.volume = 1;
+      await audio.play();
+
+      window.removeEventListener("pointerdown", startMusic);
+    } catch (err) {
+      console.log("Play failed:", err);
+    }
   };
 
-  window.addEventListener("click", startMusic);
+  window.addEventListener("pointerdown", startMusic);
+
+  return () => {
+    window.removeEventListener("pointerdown", startMusic);
+  };
 }, []);
+
 const showToast = (message) => {
   setTb(message);
 
@@ -814,7 +828,7 @@ useEffect(() => {
           Click để bắn pháo hoa 
         </div>
       )}
-      <audio ref={audioRef} src={nhac} autoPlay loop></audio>
+      
       <div
   className={`absolute bottom-10 left-6 
               w-16 sm:w-24 md:w-32 
@@ -867,7 +881,7 @@ useEffect(() => {
 </div>
 
 
-
+<audio ref={audioRef} src={nhac} autoPlay loop></audio>
     </div>
   );
 }
