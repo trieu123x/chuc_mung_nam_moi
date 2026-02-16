@@ -298,7 +298,7 @@ const showToast = (message) => {
         x: targetX,
         y: canvas.height,
         targetY,
-        speed: 5,
+        speed: 6,
         color: `hsl(${Math.random() * 360},100%,60%)`,
         trail: [],
       });
