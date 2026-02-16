@@ -626,7 +626,7 @@ useEffect(() => {
     });
 
     canvas.dispatchEvent(event);
-  }, 500);
+  }, 1000);
 
   return () => clearInterval(interval);
 }, [autoFire]);
