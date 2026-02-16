@@ -137,10 +137,7 @@ const showToast = (message) => {
       "No.1 Billiard",
     ];
 
-    const moon = new Image();
-
-    const lixi = new Image();
-    lixi.src = lixiImg;
+  
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -274,24 +271,7 @@ const showToast = (message) => {
       const targetX = e.clientX - rect.left;
       const targetY = e.clientY - rect.top;
 
-      const lixiX = 30;
-      const lixiY = window.innerHeight - 500;
-      const lixiW = 180;
-      const lixiH = 180;
-
-      if (
-        targetX >= lixiX &&
-        targetX <= lixiX + lixiW &&
-        targetY >= lixiY &&
-        targetY <= lixiY + lixiH
-      ) {
-        if (hasReceivedMoney) {
-          showToast("Ăn lằm ăn lốn >:(");
-          return;
-        }
-        setShowForm(true);
-        return; // không bắn pháo
-      }
+      
       if (showHint) {
         setShowHint(false);
       }
