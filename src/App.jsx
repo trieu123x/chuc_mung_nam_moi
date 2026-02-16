@@ -21,7 +21,7 @@ export default function App() {
   localStorage.getItem("hasReceivedMoney") === "true"
   );
   const [open, setOpen] = useState(false);
-
+const lixiRef = useRef(null);
 const banks = [
   "Vietcombank",
   "Techcombank",
@@ -58,13 +58,18 @@ const showToast = (message) => {
   }, 3000);
 };
   const isInsideLixi = (x, y) => {
+  if (!lixiRef.current) return false;
+
+  const rect = lixiRef.current.getBoundingClientRect();
+
   return (
-    x >= 30 &&
-    x <= 30 + 180 &&
-    y >= window.innerHeight - 500 &&
-    y <= window.innerHeight - 500 + 180
+    x >= rect.left &&
+    x <= rect.right &&
+    y >= rect.top &&
+    y <= rect.bottom
   );
 };
+
 
 
   const randomMoney = () => {
@@ -133,29 +138,14 @@ const showToast = (message) => {
     ];
 
     const moon = new Image();
-    moon.src = moonImg;
+
     const lixi = new Image();
     lixi.src = lixiImg;
 
-    const baseWidth = 1920;
-
-const resize = () => {
-  const dpr = window.devicePixelRatio || 1;
-
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
-
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  const scale = width / baseWidth;
-  ctx.scale(scale, scale);
-};
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
 
     resize();
     window.addEventListener("resize", resize);
@@ -324,48 +314,7 @@ const resize = () => {
     
     // ===== Li xi =====
 
-    function drawLixi() {
-  const lixiX = 30;
-  const lixiY = window.innerHeight - 500;
-  const lixiW = 180;
-  const lixiH = 180;
-
-  let offsetX = 0;
-  let offsetY = 0;
-
-  // 🔥 Chỉ rung khi CHƯA nhận
-  if (!hasReceivedMoney) {
-    const shakeInterval = 240;
-    const shakeDuration = 30;
-
-    if (time % shakeInterval < shakeDuration) {
-      offsetX = Math.sin(time * 0.5) * 5;
-      offsetY = Math.cos(time * 0.5) * 5;
-    }
-  }
-
-  if (lixi.complete) {
-    ctx.save();
-
-    // Nếu đã nhận → làm mờ nhẹ cho khác biệt
-    if (hasReceivedMoney) {
-      ctx.globalAlpha = 0.5;
-    } else {
-      ctx.shadowColor = "rgba(255,255,200,0.8)";
-      ctx.shadowBlur = 20;
-    }
-
-    ctx.drawImage(
-      lixi,
-      lixiX + offsetX,
-      lixiY + offsetY,
-      lixiW,
-      lixiH
-    );
-
-    ctx.restore();
-  }
-}
+  
 
     // ===== PHAO HOA =====
     function createFirework() {
@@ -399,15 +348,7 @@ const resize = () => {
       ctx.fillStyle = "rgba(0,0,0,0.3)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       time++;
-      if (moon.complete) {
-        ctx.save();
-        ctx.shadowColor = "rgba(255,255,200,0.8)";
-        ctx.shadowBlur = 40;
-
-        ctx.drawImage(moon, window.innerWidth - 180, 50, 170, 140);
-
-        ctx.restore();
-      }
+     
 
       // ===== SAO BAY =====
       for (let i = shootingStars.length - 1; i >= 0; i--) {
@@ -583,7 +524,7 @@ const resize = () => {
         }
       }
 
-      drawLixi();
+   
 
      
     };
@@ -667,27 +608,35 @@ document.addEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
-  useEffect(() => {
-    if (!autoFire) return;
+useEffect(() => {
+  if (!autoFire) return;
 
-    const canvas = canvasRef.current;
+  const canvas = canvasRef.current;
 
-    const interval = setInterval(() => {
-      const randomX = Math.random() * window.innerWidth;
-      const randomY = Math.random() * (window.innerHeight / 2);
-      if (isInsideLixi(randomX, randomY)) {
-        return; // không bắn nếu tọa độ nằm trong khu vực lì xì
-      }
-      const event = new MouseEvent("click", {
-        clientX: randomX,
-        clientY: randomY,
-      });
+  const interval = setInterval(() => {
+    let randomX, randomY;
+    let element;
 
-      canvas.dispatchEvent(event);
-    }, 500);
+    do {
+      randomX = Math.random() * window.innerWidth;
+      randomY = Math.random() * (window.innerHeight / 2);
 
-    return () => clearInterval(interval);
-  }, [autoFire]);
+      element = document.elementFromPoint(randomX, randomY);
+
+    } while (element === lixiRef.current);
+
+    const event = new MouseEvent("click", {
+      clientX: randomX,
+      clientY: randomY,
+      bubbles: true
+    });
+
+    canvas.dispatchEvent(event);
+  }, 500);
+
+  return () => clearInterval(interval);
+}, [autoFire]);
+
 useEffect(() => {
   const handleVisibilityChange = () => {
     if (document.hidden) {
@@ -715,7 +664,6 @@ useEffect(() => {
     document.removeEventListener("visibilitychange", handleVisibility);
   };
 }, []);
-
 
   return (
     <div className="relative h-screen">
@@ -887,6 +835,59 @@ useEffect(() => {
         </div>
       )}
       <audio ref={audioRef} src={nhac} autoPlay loop></audio>
+      <div
+  className={`absolute bottom-10 left-6 
+              w-16 sm:w-24 md:w-32 
+              transition-all duration-300`}
+>
+  {/* Glow layer khi chưa nhận tiền */}
+  {!hasReceivedMoney && (
+    <div className="absolute inset-0 
+                    bg-red-400 
+                    rounded-xl 
+                    blur-2xl 
+                    opacity-40 
+                    animate-pulse 
+                    scale-110">
+    </div>
+  )}
+
+  <img
+    onClick={() => {
+      if (hasReceivedMoney) {
+        setTb("Ăn lằm ăn lốn >:(");
+        setTimeout(() => setTb(null), 3000);
+        return;
+      }
+      setShowForm(true);
+    }}
+    src={lixiImg}
+    ref={lixiRef}
+    className={`relative w-full h-auto cursor-pointer
+                ${!hasReceivedMoney ? "lixi-animate" : ""}`}
+  />
+</div>
+
+      <div className="absolute top-6 right-6 z-10">
+  
+  {/* Glow layer */}
+  <div className="absolute inset-0 
+                  bg-yellow-200 
+                  rounded-full 
+                  blur-3xl 
+                  opacity-40 
+                  scale-110">
+  </div>
+
+  {/* Moon */}
+  <img
+    src={moonImg}
+    className="relative w-24 sm:w-32 md:w-40"
+  />
+</div>
+
+
+
     </div>
   );
 }

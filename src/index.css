@@ -34,3 +34,15 @@
     opacity: 0;
   }
 }
+
+@keyframes lixiFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-2deg); }
+  50% { transform: translateY(0px) rotate(2deg); }
+  75% { transform: translateY(-3px) rotate(-1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.lixi-animate {
+  animation: lixiFloat 2s ease-in-out infinite;
+}
