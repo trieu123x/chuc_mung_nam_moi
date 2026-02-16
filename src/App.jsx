@@ -20,6 +20,27 @@ export default function App() {
   const [hasReceivedMoney, setHasReceivedMoney] = useState(
   localStorage.getItem("hasReceivedMoney") === "true"
   );
+  const [open, setOpen] = useState(false);
+
+const banks = [
+  "Vietcombank",
+  "Techcombank",
+  "BIDV",
+  "VietinBank",
+  "ACB",
+  "MB Bank",
+  "TPBank",
+  "VPBank",
+  "SHB",
+  "SCB",
+  "OCB",
+  "VIB",
+  "MSB",
+  "Eximbank",
+  "ABBank",
+  "SeABank",
+];
+
   const audioRef = useRef(null);
   useEffect(() => {
   const startMusic = () => {
@@ -750,18 +771,53 @@ useEffect(() => {
               className="w-full mb-4 px-4 py-2 rounded-xl bg-transparent border-2 border-gray-400/40 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-300 transition"
             />
 
-            <select
-              value={bank}
-              onChange={(e) => setBank(e.target.value)}
-              className="w-full mb-6 px-4 py-2 rounded-xl bg-transparent border-2 border-gray-400/40 text-gray-200 focus:outline-none focus:border-gray-300 transition"
-            >
-              <option className="text-black">Chọn ngân hàng</option>
-              <option className="text-black">Vietcombank</option>
-              <option className="text-black">Techcombank</option>
-              <option className="text-black">BIDV</option>
-              <option className="text-black">MB Bank</option>
-              <option className="text-black">ACB</option>
-            </select>
+            <div className="relative mb-6">
+
+  <div className="relative w-full mb-6">
+  {/* Button */}
+  <div
+    onClick={() => setOpen(!open)}
+    className="w-full px-4 py-3 rounded-2xl bg-white/10 border border-white/20 text-gray-100 cursor-pointer"
+  >
+    {bank || "Chọn ngân hàng"}
+  </div>
+
+  {/* Dropdown */}
+  {open && (
+    <ul className="
+      absolute
+      w-full
+      mt-2
+      max-h-60
+      overflow-y-auto
+      rounded-2xl
+      bg-gray-100
+      border border-white/20
+      shadow-xl
+      z-50
+    ">
+      {banks.map((b, index) => (
+        <li
+          key={index}
+          onClick={() => {
+            setBank(b);
+            setOpen(false);
+          }}
+          className="px-4 py-2 hover:bg-yellow-400 hover:text-black cursor-pointer transition"
+        >
+          {b}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+  {/* Icon mũi tên custom */}
+  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-300">
+    ▼
+  </div>
+</div>
+
             <button
               onClick={randomMoney}
               disabled={hasRandomed}
