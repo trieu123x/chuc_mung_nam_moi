@@ -137,10 +137,25 @@ const showToast = (message) => {
     const lixi = new Image();
     lixi.src = lixiImg;
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
+    const baseWidth = 1920;
+
+const resize = () => {
+  const dpr = window.devicePixelRatio || 1;
+
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const scale = width / baseWidth;
+  ctx.scale(scale, scale);
+};
 
     resize();
     window.addEventListener("resize", resize);
@@ -704,7 +719,7 @@ useEffect(() => {
 
   return (
     <div className="relative h-screen">
-      <canvas ref={canvasRef} className="absolute inset-0" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-screen md:h-full" />
       <AnimatePresence>
   {tb && (
     <motion.div
